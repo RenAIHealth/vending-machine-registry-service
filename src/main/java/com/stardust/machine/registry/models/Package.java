@@ -1,6 +1,8 @@
 package com.stardust.machine.registry.models;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -15,6 +17,7 @@ public class Package extends DataModel implements SNIdentityModel {
     private String sn;
     private String name;
     private SellerMachine machine;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date soldTime;
     private PackageStatus status = PackageStatus.AVAILABLE;
 

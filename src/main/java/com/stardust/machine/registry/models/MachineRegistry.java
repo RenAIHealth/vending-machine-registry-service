@@ -1,6 +1,8 @@
 package com.stardust.machine.registry.models;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,6 +15,7 @@ public class MachineRegistry extends DataModel {
     }
 
     private String token;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date registerTime;
     private MachineRegistryStatus status = MachineRegistryStatus.ACTIVATED;
     private SellerMachine machine;

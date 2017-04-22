@@ -87,32 +87,14 @@ public class StandardVendingMachineService implements VendingMachineService {
     @Override
     @Transactional
     public Package sellPackage(String machineSN, String packageSN) {
-//        SellerMachine machine = machineRepository.getMachineBySn(machineSN);
-//        if (machine != null) {
-//            Package exists = packageRepository.getPackageBySn(packageSN);
-//            if (exists != null
-//                    && exists.getMachine().getSn().equals(machine.getSn())) {
-//                if (!exists.getStatus().equals(Package.PackageStatus.AVAILABLE)) {
-//                    throw new InvalidStatusException();
-//                }
-//                exists.setStatus(Package.PackageStatus.SOLD);
-//                packageRepository.save(exists);
-//                exists.setId(-1);
-//                return exists;
-//            } else {
-//                throw new RecordNotFoundException();
-//            }
-//        } else {
-//            throw new RecordNotFoundException();
-//        }
         Package exists = packageRepository.getPackageBySn(machineSN, packageSN);
         if (exists != null) {
             if (!exists.getStatus().equals(Package.PackageStatus.AVAILABLE)) {
                 throw new InvalidStatusException();
             }
             exists.setStatus(Package.PackageStatus.SOLD);
+            exists.setSoldTime(Calendar.getInstance().getTime());
             packageRepository.save(exists);
-            exists.setId(-1);
             return exists;
         } else {
             throw new RecordNotFoundException();
@@ -127,8 +109,10 @@ public class StandardVendingMachineService implements VendingMachineService {
             Package exists = packageRepository.getPackageBySn(packageSN);
             if (exists != null
                     && exists.getMachine().getSn().equals(machine.getSn())) {
+                if (!exists.getStatus().equals(Package.PackageStatus.AVAILABLE)) {
+                    throw new InvalidStatusException();
+                }
                 packageRepository.delete(exists);
-                exists.setId(-1);
                 return exists;
             } else {
                 throw new RecordNotFoundException();

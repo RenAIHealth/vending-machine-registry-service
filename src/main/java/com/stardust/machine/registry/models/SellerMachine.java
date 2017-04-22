@@ -99,6 +99,7 @@ public class SellerMachine extends DataModel implements SNIdentityModel {
         this.packages = packages;
     }
 
+    @JsonIgnore
     @OneToOne(mappedBy = "machine",
               fetch = FetchType.LAZY,
               cascade = CascadeType.ALL)
