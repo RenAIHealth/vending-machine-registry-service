@@ -12,7 +12,7 @@ public interface VendingMachineService {
 
     Package registerPackage(String machineSN, Package packageProduct);
 
-    Package sellPackage(String packageSN);
+    Package sellPackage(String machineSN, String packageSN);
 
-    Package withdrawPackage(String packageSN);
+    Package withdrawPackage(String machineSN, String packageSN);
 }

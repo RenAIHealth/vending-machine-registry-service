@@ -4,12 +4,14 @@ package com.stardust.machine.registry.services;
 import com.stardust.machine.registry.dao.MachineRepository;
 import com.stardust.machine.registry.dao.PackageRepository;
 import com.stardust.machine.registry.exceptions.InvalidSNException;
+import com.stardust.machine.registry.exceptions.InvalidStatusException;
 import com.stardust.machine.registry.exceptions.RecordNotFoundException;
 import com.stardust.machine.registry.models.MachineRegistry;
 import com.stardust.machine.registry.models.Package;
 import com.stardust.machine.registry.models.SellerMachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -17,11 +19,15 @@ import java.util.UUID;
 @Service
 public class StandardVendingMachineService implements VendingMachineService {
 
-    @Autowired
     MachineRepository machineRepository;
 
-    @Autowired
     PackageRepository packageRepository;
+
+    @Autowired
+    public StandardVendingMachineService(MachineRepository machineRepository, PackageRepository packageRepository) {
+        this.machineRepository = machineRepository;
+        this.packageRepository = packageRepository;
+    }
 
     private String generateToken() {
         return UUID.randomUUID().toString();
@@ -79,12 +85,56 @@ public class StandardVendingMachineService implements VendingMachineService {
     }
 
     @Override
-    public Package sellPackage(String packageSN) {
-        return null;
+    @Transactional
+    public Package sellPackage(String machineSN, String packageSN) {
+//        SellerMachine machine = machineRepository.getMachineBySn(machineSN);
+//        if (machine != null) {
+//            Package exists = packageRepository.getPackageBySn(packageSN);
+//            if (exists != null
+//                    && exists.getMachine().getSn().equals(machine.getSn())) {
+//                if (!exists.getStatus().equals(Package.PackageStatus.AVAILABLE)) {
+//                    throw new InvalidStatusException();
+//                }
+//                exists.setStatus(Package.PackageStatus.SOLD);
+//                packageRepository.save(exists);
+//                exists.setId(-1);
+//                return exists;
+//            } else {
+//                throw new RecordNotFoundException();
+//            }
+//        } else {
+//            throw new RecordNotFoundException();
+//        }
+        Package exists = packageRepository.getPackageBySn(machineSN, packageSN);
+        if (exists != null) {
+            if (!exists.getStatus().equals(Package.PackageStatus.AVAILABLE)) {
+                throw new InvalidStatusException();
+            }
+            exists.setStatus(Package.PackageStatus.SOLD);
+            packageRepository.save(exists);
+            exists.setId(-1);
+            return exists;
+        } else {
+            throw new RecordNotFoundException();
+        }
     }
 
     @Override
-    public Package withdrawPackage(String packageSN) {
-        return null;
+    @Transactional
+    public Package withdrawPackage(String machineSN, String packageSN) {
+        SellerMachine machine = machineRepository.getMachineBySn(machineSN);
+        if (machine != null) {
+            Package exists = packageRepository.getPackageBySn(packageSN);
+            if (exists != null
+                    && exists.getMachine().getSn().equals(machine.getSn())) {
+                packageRepository.delete(exists);
+                exists.setId(-1);
+                return exists;
+            } else {
+                throw new RecordNotFoundException();
+            }
+        } else {
+            throw new RecordNotFoundException();
+        }
     }
 }

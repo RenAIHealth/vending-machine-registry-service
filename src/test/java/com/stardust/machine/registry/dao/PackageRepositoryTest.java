@@ -51,7 +51,18 @@ public class PackageRepositoryTest {
     @Test
     public void packageRepositoryShouldFindPackageBySN() {
         Package exists = subject.getPackageBySn("foo_sn");
+
         Assert.assertNotNull(exists);
         Assert.assertEquals("foo_sn", exists.getSn());
+        Assert.assertNotNull(exists.getMachine());
+    }
+
+    @Test
+    public void packageRepositoryShouldFindPackageBySN2() {
+        Package exists = subject.getPackageBySn("foo_package_machine_sn", "foo_sn");
+
+        Assert.assertNotNull(exists);
+        Assert.assertEquals("foo_sn", exists.getSn());
+        Assert.assertNotNull(exists.getMachine());
     }
 }

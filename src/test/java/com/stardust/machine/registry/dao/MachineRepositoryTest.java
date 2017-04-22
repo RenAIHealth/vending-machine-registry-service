@@ -48,8 +48,6 @@ public class MachineRepositoryTest {
         }
     }
 
-
-
     @Test
     public void machineRepositoryShouldFindMachineBySN() {
         SellerMachine exists = subject.getMachineBySn("foo_sn");
