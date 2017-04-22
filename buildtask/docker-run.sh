@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-DB_SERVER=${TS_DB_SERVER}
-DB_PORT=${TS_DB_PORT}
-SESSION_SERVER=${TS_SESSION_SERVER}
-SESSION_PORT=${TS_SESSION_PORT}
-PENDING_ORDER_SERVER=${TS_PENDING_ORDER_SERVER}
+DB_SERVER=${DB_SERVER}
+DB_PORT=${DB_PORT}
 APP_ENV=${APP_ENV}
 CMD=$1
 
@@ -12,34 +9,21 @@ if  [ ! -n "$DB_SERVER" ] ;then
     DB_SERVER='127.0.0.1'
 fi
 
-if  [ ! -n "$SESSION_SERVER" ] ;then
-    SESSION_SERVER='127.0.0.1'
-fi
-
-if  [ ! -n "$PENDING_ORDER_SERVER" ] ;then
-    PENDING_ORDER_SERVER=$SESSION_SERVER
-fi
-
 if  [ ! -n "$DB_PORT" ] ;then
-    DB_PORT=3306
-fi
-
-if  [ ! -n "$SESSION_PORT" ] ;then
-    SESSION_PORT=6379
+    DB_PORT=1433
 fi
 
 if [ ! -n "$CMD" ] ;then
     CMD=./entrypoint.sh
 fi
 
-docker rm -f transaction-service || echo "No started transaction service found"
+docker rm -f machine-registry || echo "No started transaction service found"
 
-docker run -t -p 7170:7170 --rm --name=transaction-service \
+docker run -t -p 9098:9098 --rm --name=machine-registry \
          -e APP_ENV=$APP_ENV \
-         -e TS_DB_SERVER=$DB_SERVER \
-         -e TS_DB_PORT=$DB_PORT \
-         -e TS_SESSION_SERVER=$SESSION_SERVER \
-         -e TS_PENDING_ORDER_SERVER=$PENDING_ORDER_SERVER \
-         -e TS_SESSION_PORT=$SESSION_PORT \
-         registry-vpc.cn-beijing.aliyuncs.com/stardustio/transaction-service \
+         -e DB_HOST=$DB_SERVER \
+         -e DB_PORT=$DB_PORT \
+         -e DB_USERNAME=$DB_USERNAME
+         -e DB_PASSWORD=$DB_PASSWORD
+         registry-vpc.cn-beijing.aliyuncs.com/stardustio/machine-registry \
          $CMD &

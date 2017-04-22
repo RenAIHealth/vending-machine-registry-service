@@ -1,5 +1,10 @@
 package com.stardust.machine.registry.aspects;
 
+import com.stardust.machine.registry.exceptions.InvalidSNException;
+import com.stardust.machine.registry.exceptions.InvalidStatusException;
+import com.stardust.machine.registry.exceptions.InvalidTokenException;
+import com.stardust.machine.registry.exceptions.RecordNotFoundException;
+import com.stardust.machine.registry.models.Message;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -64,6 +69,14 @@ public class LogAspect {
         Object result = null;
         try {
             result = pjp.proceed();
+        } catch (RecordNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        } catch (InvalidSNException | InvalidTokenException | InvalidStatusException e) {
+            Message message = new Message();
+            message.setType(Message.MessageType.ERROR);
+            message.setContent(e.getMessage());
+            result = message;
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();
