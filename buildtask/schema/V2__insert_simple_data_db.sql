@@ -1,0 +1,1 @@
+INSERT INTO coupons (id, amount, code, customer_key, description, name, rate, status) VALUES (1, 50.0, "TEST_CODE", "13572169731", "Desc", "TEST_COUPON", 0.0, 0)

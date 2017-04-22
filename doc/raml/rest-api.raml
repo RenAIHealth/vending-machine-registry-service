@@ -1,0 +1,265 @@
+#%RAML 1.0
+title: Auto Seller Data API
+version: v1
+baseUri: http://www.renaijiance.com:9098/
+protocols:
+  - HTTP
+description:
+  - Micro-Service to ingestion auto seller data
+mediaType:
+  - application/json
+types:
+  SellerMachine:
+    type: object
+    properties:
+      sn: string
+      province: string
+      city: string
+      district: string
+      location: string
+  MachineRegistryToken:
+     type: object
+     properties:
+       machineSN: string
+       token: string
+       registerTime: datetime
+       status: string
+  Package:
+    type: object
+    properties:
+      sn: string
+      name: string
+      machine: SellerMachine
+  Message:
+    type: object
+    properties:
+      type: string
+      content: string
+  Page:
+    description:
+      standard javax page object
+    type: object
+    properties:
+      content: object[]
+      last: boolean
+      totalPages: integer
+      totalElements: integer
+      first: boolean
+      numberOfElements: integer
+      size: integer
+      number: integer
+/api/machines:
+  description:
+    Machine Data API root route
+  post:
+    description:
+      Register machine to renai central server
+    displayName: registerMachine
+    body:
+      application/json:
+        type: SellerMachine
+    responses:
+      200:
+        body:
+          application/json:
+            type: MachineRegistryToken
+      500:
+        body:
+          application/json:
+            type: Message
+  /{machineSN}:
+    get:
+      description: Search machin by sn
+      displayName: findMachinBySN
+      queryParameters:
+        token: string
+      responses:
+        200:
+          body:
+            application/json:
+              type: SellerMachine
+        500:
+          body:
+            application/json:
+              type: Message
+        403:
+        404:
+    /packages:
+      /stock:
+        get:
+          description:
+            List package in machine (has not been sold yet)
+          displayName:
+            getPackagesInMachine
+          queryParameters:
+            token: string
+            page:
+              description: page index
+              type: integer
+              required: false
+              default: 0
+            size:
+              description: how many records display in list
+              type:        integer
+              required:    false
+              example:     10
+            sort:
+              description: sort by field
+              type:        string
+              required:    false
+              example:     "name"
+            filterFields:
+              required: false
+              description: collection of field names you want to search with, fields seperated by '+'
+              type: string
+              example:
+                name+status
+            filterValues:
+              required: false
+              description:  collection of search values, seperated by '+'
+              type: string
+              example:
+                something+A
+          responses:
+            200:
+              body:
+                application/json:
+                  type: Page
+            500:
+              body:
+                application/json:
+                  type: Message
+            403:
+        post:
+          description:
+            Push package to machine
+          displayName: registerPackage
+          queryParameters:
+            token: string
+          body:
+            application/json:
+              type: Package
+          responses:
+            200:
+              body:
+                application/json:
+                  type: Package
+            500:
+              body:
+                application/json:
+                  type: Message
+            403:
+            404:
+        /{packageSN}:
+          get:
+            description: Search package in specified machine
+            displayName: findPackageInMachine
+            queryParameters:
+              token: string
+            responses:
+              200:
+                body:
+                  application/json:
+                    type: Package
+              500:
+                body:
+                  application/json:
+                    type: Message
+              404:
+              403:
+          delete:
+            description: Remove package from speicifed machine
+            displayName: removePackage
+            queryParameters:
+              token: string
+            responses:
+              200:
+                body:
+                  application/json:
+                    type: Package
+              500:
+                body:
+                  application/json:
+                    type: Message
+              403:
+              404:
+      /sold:
+        get:
+          description:
+            List sold package in machine
+          displayName:
+            getSoldPackagesInMachine
+          queryParameters:
+            token: string
+            page:
+              description: page index
+              type: integer
+              required: false
+              default: 0
+            size:
+              description: how many records display in list
+              type:        integer
+              required:    false
+              example:     10
+            sort:
+              description: sort by field
+              type:        string
+              required:    false
+              example:     "name"
+            filterFields:
+              required: false
+              description: collection of field names you want to search with, fields seperated by '+'
+              type: string
+              example:
+                name+status
+            filterValues:
+              required: false
+              description:  collection of search values, seperated by '+'
+              type: string
+              example:
+                something+A
+          responses:
+            200:
+              body:
+                application/json:
+                  type: Page
+            500:
+              body:
+                application/json:
+                  type: Message
+            403:
+            404:
+        /{packageSN}:
+          post:
+            description:
+              Move the package to sold history after client sell it out
+            displayName: sellPackage
+            queryParameters:
+              token: string
+            responses:
+              200:
+                body:
+                  application/json:
+                    type: Package
+              500:
+                body:
+                  application/json:
+                    type: Message
+              403:
+              404:
+          get:
+            description: Search package in specified machine
+            displayName: findPackageInMachine
+            queryParameters:
+              token: string
+            responses:
+              200:
+                body:
+                  application/json:
+                    type: Package
+              500:
+                body:
+                  application/json:
+                    type: Message
+              403:
+              404:
