@@ -25,8 +25,6 @@ public class LogAspect {
 
     private static Logger logger = Logger.getLogger(LogAspect.class);
 
-    private static final int SC_OK_MESSAGE = 210;
-
     public LogAspect() {
 
     }

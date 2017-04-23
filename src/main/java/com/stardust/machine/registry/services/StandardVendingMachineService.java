@@ -113,6 +113,7 @@ public class StandardVendingMachineService implements VendingMachineService {
                     throw new InvalidStatusException();
                 }
                 packageRepository.delete(exists);
+                exists.setStatus(Package.PackageStatus.DELETED);
                 return exists;
             } else {
                 throw new RecordNotFoundException();

@@ -11,7 +11,7 @@ import java.util.Date;
 public class Package extends DataModel implements SNIdentityModel {
 
     public enum PackageStatus {
-        AVAILABLE, SOLD
+        AVAILABLE, SOLD, DELETED
     }
 
     private String sn;

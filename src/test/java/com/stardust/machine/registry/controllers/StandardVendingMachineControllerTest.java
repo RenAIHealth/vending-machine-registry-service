@@ -55,36 +55,6 @@ public class StandardVendingMachineControllerTest {
         RestAssuredMockMvc.reset();
     }
 
-//    @Test
-//    public void trainingControllerShouldReturn404WhenRecordNotExist() {
-//        RestAssuredMockMvc.get("/training/99").then().assertThat().statusCode(404);
-//    }
-//
-//    @Test
-//    public void trainingControllerShouldReturnEntityWhenRecordExist() {
-//        RestAssuredMockMvc.get("/training/" + trainingA.getId()).then().body("data.name", equalTo(trainingA.getName()));
-//    }
-//
-//    @Test
-//    public void trainingControllerShouldUpdateEntityWhenRecordExist() {
-//        trainingA.setName("Changed Name of Training A");
-//        RestAssuredMockMvc.given().contentType("application/json; charset=UTF-8").body(trainingA).when().put("/training/" + trainingA.getId()).then().body("data.name", equalTo("Changed Name of Training A"));
-//    }
-//
-//    @Test
-//    public void trainingControllerShouldReturn404WhenUpdatingRecordNotExist() {
-//        RestAssuredMockMvc.given().contentType("application/json; charset=UTF-8").body(trainingC).when().put("/training/99").then().assertThat().statusCode(404);
-//    }
-//
-//    @Test
-//    public void trainingControllerShouldReturnListOfEntities() {
-//        RestAssuredMockMvc.get("/training/list").then()
-//                .body("data.totalPages", equalTo(1));
-////                .body("data.numberOfElements", equalTo(2))
-////                .body("data.content[0].name", equalTo(trainingA.getName()))
-////                .body("data.content[1].name", equalTo(trainingB.getName()));
-//    }
-
     @Test
     public void machineServiceShouldRegisterMachine() {
         String response = RestAssuredMockMvc
@@ -120,6 +90,17 @@ public class StandardVendingMachineControllerTest {
         Assert.assertNotNull(product);
         Assert.assertNotNull(product.getMachine());
         Assert.assertEquals("machine_sn", product.getMachine().getSn());
+    }
+
+    @Test
+    public void machineServiceShouldReturn400WhenTokenInvalid() {
+        RestAssuredMockMvc
+                .given()
+                .contentType("application/json; charset=UTF-8")
+                .body(packageProduct)
+                .when()
+                .post("/api/machines/machine_sn_another/packages/stock?token=" + registry.getToken())
+                .then().assertThat().statusCode(400);
     }
 
     @Test
