@@ -1,58 +1,42 @@
-## Transaction Service
-Micro-Service to proceed training transactions
+## Vending Machine Registry Service
+Supply registry and tracking service for vending machine
 
-## Dependencies
+## 1. Dependencies
 ```
 Java 8
-MySQL
-Redis
+MSSQL
 Maven
 Git
 ```
 
-## Setup local environment
-### 1. Checkout and build
-```sh
-git clone https://github.com/TrainingJoy/TransactionService.git
-export APP_ENV=dev
-mvn clean install -Dmaven.test.skip=true
-```
-### 2. Install and start redis
-```sh
-brew install redis
-redis-server
-```
-### 3. Run test
-```sh
-./buildtask/test.sh
-```
-
-### 4. Startup service locally
-- Command line:
-```sh
-export APP_ENV=dev
-java -jar ./target/trainingjoy-transaction-0.0.1.jar
-
-```
-- IntelliJ
-```
-1). Run->Edit Configuration->Springboot->TransactionServiceApplication
-2). Add environment APP_ENV=dev
-3). Run/Debug TransactionServiceApplication
-```
-
-### 5. CI
-http://112.74.57.47:1338/job/transaction-service/
-
-### 6. Documentation
+### 2. Documentation
 ```
 - raml - ./doc/raml/rest-api.raml
 ```
 
-### 7. Docker
-- base image: stardustdocker/java8
-- OS: CentOS 7.2
-- Java: version 8
-- ENV: APP_ENV, TS_DB_SERVER, TS_DB_PORT, TS_SESSION_SERVER, TS_SESSION_PORT
+### 3. Build docker image
+```shell
+./buildtask/docker-build.sh
+```
+
+### 4. Run in docker container
+- prod
+  - export APP_ENV=prod
+  - export DB_HOST=`url of db host`
+  - export DB_PORT=`port of db host`
+  - epxort DB_USER=`db user`
+  - export DB_PASSWORD=`db password`
+- dev
+  - export APP_ENV=dev
+- test
+  - export APP_ENV=test
+
+```shell
+./buildtask/docker-run.sh
+```
+### 5. Run test locally
+```shell
+./buildtask/test.sh
+```
 
 
