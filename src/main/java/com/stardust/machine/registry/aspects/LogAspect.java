@@ -1,9 +1,6 @@
 package com.stardust.machine.registry.aspects;
 
-import com.stardust.machine.registry.exceptions.InvalidSNException;
-import com.stardust.machine.registry.exceptions.InvalidStatusException;
-import com.stardust.machine.registry.exceptions.InvalidTokenException;
-import com.stardust.machine.registry.exceptions.RecordNotFoundException;
+import com.stardust.machine.registry.exceptions.*;
 import com.stardust.machine.registry.models.Message;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
@@ -69,7 +66,11 @@ public class LogAspect {
             result = pjp.proceed();
         } catch (RecordNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        } catch (InvalidSNException | InvalidTokenException | InvalidStatusException e) {
+        } catch (InvalidSNException
+                | InvalidTokenException
+                | InvalidStatusException
+                | DuplicatedKeyException
+                | InvalidCouponException e) {
             Message message = new Message();
             message.setType(Message.MessageType.ERROR);
             message.setContent(e.getMessage());

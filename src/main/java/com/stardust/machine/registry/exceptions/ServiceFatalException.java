@@ -1,5 +1,5 @@
 package com.stardust.machine.registry.exceptions;
 
 
-public class ServiceFatalException extends RuntimeException {
+public abstract class ServiceFatalException extends RuntimeException {
 }

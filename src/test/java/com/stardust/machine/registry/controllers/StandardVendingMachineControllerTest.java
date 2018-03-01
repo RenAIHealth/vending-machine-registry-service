@@ -62,7 +62,7 @@ public class StandardVendingMachineControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(machine)
                 .when()
-                .post("/api/machines")
+                .post("/v1-0-1/api/machines")
                 .asString();
 
         Gson gson =  new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -81,7 +81,7 @@ public class StandardVendingMachineControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(packageProduct)
                 .when()
-                .post("/api/machines/machine_sn/packages/stock?token=" + registry.getToken())
+                .post("/v1-0-1/api/machines/machine_sn/packages/stock?token=" + registry.getToken())
                 .asString();
 
         Gson gson =  new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -99,7 +99,7 @@ public class StandardVendingMachineControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(packageProduct)
                 .when()
-                .post("/api/machines/machine_sn_another/packages/stock?token=" + registry.getToken())
+                .post("/v1-0-1/api/machines/machine_sn_another/packages/stock?token=" + registry.getToken())
                 .then().assertThat().statusCode(400);
     }
 
@@ -110,7 +110,7 @@ public class StandardVendingMachineControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(packageProduct)
                 .when()
-                .post("/api/machines/machine_sn/packages/sold?token=" + registry.getToken())
+                .post("/v1-0-1/api/machines/machine_sn/packages/sold?token=" + registry.getToken())
                 .asString();
 
         Gson gson =  new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();

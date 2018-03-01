@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping({"/api/machines"})
+@RequestMapping({"v1-0-1/api/machines"})
 @EnableAutoConfiguration
 public class StandardVendingMachineController {
     @Autowired
