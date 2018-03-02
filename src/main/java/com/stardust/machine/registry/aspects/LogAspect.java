@@ -70,6 +70,7 @@ public class LogAspect {
                 | InvalidTokenException
                 | InvalidStatusException
                 | DuplicatedKeyException
+                | MachineSNConflictException
                 | InvalidCouponException e) {
             Message message = new Message();
             message.setType(Message.MessageType.ERROR);

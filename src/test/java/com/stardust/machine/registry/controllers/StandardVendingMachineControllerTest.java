@@ -3,9 +3,8 @@ package com.stardust.machine.registry.controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.stardust.machine.registry.MachineRegistryServiceApplication;
-import com.stardust.machine.registry.models.MachineRegistry;
+import com.stardust.machine.registry.models.*;
 import com.stardust.machine.registry.models.Package;
-import com.stardust.machine.registry.models.SellerMachine;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -15,6 +14,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -27,6 +29,8 @@ public class StandardVendingMachineControllerTest {
     @Autowired
     private WebApplicationContext context;
 
+    private VendorMachineOrder order;
+
     private static SellerMachine machine;
 
     private static MachineRegistry registry;
@@ -34,7 +38,7 @@ public class StandardVendingMachineControllerTest {
     private static Package packageProduct;
 
     @Before
-    public void setup() {
+    public void setup() throws ParseException {
         RestAssuredMockMvc.webAppContextSetup(context);
         if (machine == null) {
             machine = new SellerMachine();
@@ -48,6 +52,20 @@ public class StandardVendingMachineControllerTest {
             packageProduct.setSn("package_sn");
             packageProduct.setName("package_name");
         }
+
+        Product product = new Product();
+        product.setPrice(2.0);
+        product.setName("product");
+
+        order = new VendorMachineOrder();
+        order.setOrderDate(new SimpleDateFormat("yyyy-MM-dd").parse("2018-01-01"));
+        order.setExternalTradeNumber("external_trade_no");
+        order.setOrderNumber("order_no");
+        order.setAuid("auid");
+        order.setPaymentType(PaymentType.ALI_QRCODE);
+        order.setTransactionType(TransactionType.VENDER_MACHINE_SALE);
+        order.setMachineSN("machine_sn");
+        order.setProduct(product);
     }
 
     @After
@@ -118,5 +136,47 @@ public class StandardVendingMachineControllerTest {
         Package product = gson.fromJson(response, Package.class);
         Assert.assertNotNull(product);
         Assert.assertEquals(Package.PackageStatus.SOLD, product.getStatus());
+    }
+
+    @Test
+    public void machineServiceShouldRegisterOrder() {
+        order.setMachineSN("machine_sn");
+        String response = RestAssuredMockMvc
+                .given()
+                .contentType("application/json; charset=UTF-8")
+                .body(order)
+                .when()
+                .post("/v1-0-1/api/machines/machine_sn/orders?token=" + registry.getToken())
+                .asString();
+
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+
+        Receipt receipt = gson.fromJson(response, Receipt.class);
+        Assert.assertNotNull(receipt);
+    }
+
+    @Test
+    public void machineServiceShouldReturn400WhenRegisterOrderIfMachineSNConflict() {
+        order.setMachineSN("sn");
+        RestAssuredMockMvc
+                .given()
+                .contentType("application/json; charset=UTF-8")
+                .body(order)
+                .when()
+                .post("/v1-0-1/api/machines/machine_sn/orders?token=" + registry.getToken())
+                .then().assertThat().statusCode(400);
+    }
+
+    @Test
+    public void machineServiceShouldReturn400WhenRegisterOrderIfCouponInvalid() {
+        order.setMachineSN("machine_sn");
+        order.setCouponCode("coupon_not_exists");
+        RestAssuredMockMvc
+                .given()
+                .contentType("application/json; charset=UTF-8")
+                .body(order)
+                .when()
+                .post("/v1-0-1/api/machines/machine_sn/orders?token=" + registry.getToken())
+                .then().assertThat().statusCode(400);
     }
 }

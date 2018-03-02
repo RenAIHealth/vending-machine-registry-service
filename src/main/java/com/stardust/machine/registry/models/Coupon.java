@@ -64,6 +64,7 @@ public class Coupon extends DataModel {
         this.discountAmount = discountAmount;
     }
 
+    @Enumerated
     public CouponStatus getStatus() {
         return status;
     }

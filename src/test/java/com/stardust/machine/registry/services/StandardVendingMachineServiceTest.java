@@ -2,12 +2,15 @@ package com.stardust.machine.registry.services;
 
 
 import com.stardust.machine.registry.MachineRegistryServiceApplication;
+import com.stardust.machine.registry.components.VendingMachineReceiptBuilder;
+import com.stardust.machine.registry.dao.CouponRepository;
 import com.stardust.machine.registry.dao.MachineRepository;
 import com.stardust.machine.registry.dao.PackageRepository;
+import com.stardust.machine.registry.dao.ReceiptRepository;
 import com.stardust.machine.registry.exceptions.InvalidSNException;
 import com.stardust.machine.registry.exceptions.RecordNotFoundException;
+import com.stardust.machine.registry.models.*;
 import com.stardust.machine.registry.models.Package;
-import com.stardust.machine.registry.models.SellerMachine;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,11 +32,20 @@ public class StandardVendingMachineServiceTest {
 
     private PackageRepository packageRepository;
 
+    private VendingMachineReceiptBuilder receiptBuilder;
+
+    private ReceiptRepository receiptRepository;
+
+    private CouponRepository couponRepository;
+
     @Before
     public void setup() {
         machineRepository = EasyMock.createMock(MachineRepository.class);
         packageRepository = EasyMock.createMock(PackageRepository.class);
-        subject = new StandardVendingMachineService(machineRepository, packageRepository);
+        receiptBuilder = EasyMock.createMock(VendingMachineReceiptBuilder.class);
+        receiptRepository = EasyMock.createMock(ReceiptRepository.class);
+        couponRepository = EasyMock.createMock(CouponRepository.class);
+        subject = new StandardVendingMachineService(machineRepository, packageRepository, receiptBuilder, receiptRepository, couponRepository);
     }
 
     @Test
@@ -215,5 +227,37 @@ public class StandardVendingMachineServiceTest {
         EasyMock.expect(packageRepository.getPackageBySn("package_sn")).andReturn(packageProduct).once();
         EasyMock.replay(machineRepository, packageRepository);
         subject.withdrawPackage("machine_sn", "package_sn");
+    }
+
+    @Test
+    public void testIfMachineServiceSaveReceiptWhenNoCoupon() {
+        Receipt receipt = new Receipt();
+        VendorMachineOrder order = new VendorMachineOrder();
+
+        EasyMock.expect(receiptBuilder.createFromOrder(order)).andReturn(receipt).once();
+        EasyMock.expect(receiptRepository.save(receipt)).andReturn(receipt).once();
+
+        EasyMock.replay(receiptBuilder, receiptRepository);
+
+        subject.proceedOrder(order);
+    }
+
+    @Test
+    public void testIfMachineServiceSaveReceiptAndCouponWhenHasCoupon() {
+        Receipt receipt = new Receipt();
+        VendorMachineOrder order = new VendorMachineOrder();
+        order.setCouponCode("coupon");
+        Coupon coupon = new Coupon();
+
+        EasyMock.expect(receiptBuilder.createFromOrder(order)).andReturn(receipt).once();
+        EasyMock.expect(couponRepository.getCouponByCode("coupon")).andReturn(coupon).once();
+        EasyMock.expect(couponRepository.save(coupon)).andReturn(coupon).once();
+        EasyMock.expect(receiptRepository.save(receipt)).andReturn(receipt).once();
+
+        EasyMock.replay(receiptBuilder, receiptRepository, couponRepository);
+
+        subject.proceedOrder(order);
+
+        Assert.assertEquals(Coupon.CouponStatus.OUT_OF_USAGE, coupon.getStatus());
     }
 }

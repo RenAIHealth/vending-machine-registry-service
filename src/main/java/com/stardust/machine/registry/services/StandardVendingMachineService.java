@@ -1,20 +1,21 @@
 package com.stardust.machine.registry.services;
 
 
+import com.stardust.machine.registry.components.VendingMachineReceiptBuilder;
+import com.stardust.machine.registry.dao.CouponRepository;
 import com.stardust.machine.registry.dao.MachineRepository;
 import com.stardust.machine.registry.dao.PackageRepository;
+import com.stardust.machine.registry.dao.ReceiptRepository;
 import com.stardust.machine.registry.exceptions.InvalidSNException;
 import com.stardust.machine.registry.exceptions.InvalidStatusException;
 import com.stardust.machine.registry.exceptions.RecordNotFoundException;
-import com.stardust.machine.registry.models.MachineRegistry;
+import com.stardust.machine.registry.models.*;
 import com.stardust.machine.registry.models.Package;
-import com.stardust.machine.registry.models.SellerMachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class StandardVendingMachineService implements VendingMachineService {
@@ -23,10 +24,23 @@ public class StandardVendingMachineService implements VendingMachineService {
 
     PackageRepository packageRepository;
 
+    ReceiptRepository receiptRepository;
+
+    CouponRepository couponRepository;
+
+    VendingMachineReceiptBuilder receiptBuilder;
+
     @Autowired
-    public StandardVendingMachineService(MachineRepository machineRepository, PackageRepository packageRepository) {
+    public StandardVendingMachineService(MachineRepository machineRepository,
+                                         PackageRepository packageRepository,
+                                         VendingMachineReceiptBuilder receiptBuilder,
+                                         ReceiptRepository receiptRepository,
+                                         CouponRepository couponRepository) {
         this.machineRepository = machineRepository;
         this.packageRepository = packageRepository;
+        this.receiptBuilder = receiptBuilder;
+        this.receiptRepository = receiptRepository;
+        this.couponRepository = couponRepository;
     }
 
     private String generateToken() {
@@ -121,5 +135,18 @@ public class StandardVendingMachineService implements VendingMachineService {
         } else {
             throw new RecordNotFoundException();
         }
+    }
+
+    @Override
+    @Transactional
+    public Receipt proceedOrder(VendorMachineOrder order) {
+        Receipt receipt = this.receiptBuilder.createFromOrder(order);
+        if (order.getCouponCode() != null) {
+            Coupon coupon = couponRepository.getCouponByCode(order.getCouponCode());
+            coupon.setStatus(Coupon.CouponStatus.OUT_OF_USAGE);
+            couponRepository.save(coupon);
+        }
+        receiptRepository.save(receipt);
+        return receipt;
     }
 }

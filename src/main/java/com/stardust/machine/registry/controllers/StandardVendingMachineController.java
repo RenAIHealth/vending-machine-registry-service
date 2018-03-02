@@ -1,12 +1,16 @@
 package com.stardust.machine.registry.controllers;
 
 import com.stardust.machine.registry.exceptions.InvalidTokenException;
+import com.stardust.machine.registry.exceptions.MachineSNConflictException;
+import com.stardust.machine.registry.models.VendorMachineOrder;
 import com.stardust.machine.registry.models.Package;
 import com.stardust.machine.registry.models.SellerMachine;
 import com.stardust.machine.registry.services.VendingMachineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping({"v1-0-1/api/machines"})
@@ -48,5 +52,22 @@ public class StandardVendingMachineController {
             throw new InvalidTokenException(token, machineSN);
         }
         return service.withdrawPackage(machineSN, packageSN);
+    }
+
+    @RequestMapping(value = "/{machineSN}/orders", method={RequestMethod.POST})
+    public Object proceedTransaction(@PathVariable String machineSN,
+                                  @RequestParam String token,
+                                  @RequestBody VendorMachineOrder order ) {
+        if (!service.validateMachineToken(machineSN, token)) {
+            throw new InvalidTokenException(token, machineSN);
+        }
+
+        if (!machineSN.equals(order.getMachineSN())) {
+            throw new MachineSNConflictException();
+        }
+
+        order.setOrderDate(new Date());
+
+        return service.proceedOrder(order);
     }
 }

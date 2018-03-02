@@ -26,7 +26,7 @@ public class O2OCouponService implements CouponService {
         }
         if (!coupon.getStatus().equals(Coupon.CouponStatus.ACTIVATED)
                 || coupon.getActivity().getExpireDate().compareTo(new Date()) <= 0) {
-            throw new InvalidCouponException(coupon);
+            throw new InvalidCouponException();
         }
         return coupon;
     }
