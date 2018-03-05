@@ -63,7 +63,7 @@ public class CouponControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(this.coupon)
                 .when()
-                .post("/v1-0-1/api/coupons/o2o")
+                .post("/api/v101/coupons/o2o")
                 .asString();
 
         Gson gson =  new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -80,7 +80,7 @@ public class CouponControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(coupon)
                 .when()
-                .post("/v1-0-1/api/coupons/o2o")
+                .post("/api/v101/coupons/o2o")
                 .then().assertThat().statusCode(400);
     }
 
@@ -91,7 +91,7 @@ public class CouponControllerTest {
                 .contentType("application/json; charset=UTF-8")
                 .body(coupon)
                 .when()
-                .get("/v1-0-1/api/coupons/o2o/available/foo")
+                .get("/api/v101/coupons/o2o/available/foo")
                 .then().assertThat().statusCode(404);
     }
 }

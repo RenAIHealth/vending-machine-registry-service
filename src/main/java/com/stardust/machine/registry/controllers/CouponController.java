@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping({"v1-0-1/api/coupons"})
+@RequestMapping({"/api/v101/coupons"})
 @EnableAutoConfiguration
 public class CouponController {
     @Autowired

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 @RestController
-@RequestMapping({"v1-0-1/api/machines"})
+@RequestMapping({"/api/v101/machines"})
 @EnableAutoConfiguration
 public class StandardVendingMachineController {
     @Autowired
