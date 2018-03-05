@@ -2,6 +2,7 @@ package com.stardust.machine.registry.controllers;
 
 import com.stardust.machine.registry.exceptions.InvalidTokenException;
 import com.stardust.machine.registry.exceptions.MachineSNConflictException;
+import com.stardust.machine.registry.models.TransactionType;
 import com.stardust.machine.registry.models.VendorMachineOrder;
 import com.stardust.machine.registry.models.Package;
 import com.stardust.machine.registry.models.SellerMachine;
@@ -67,7 +68,7 @@ public class StandardVendingMachineController {
         }
 
         order.setOrderDate(new Date());
-
+        order.setTransactionType(TransactionType.VENDER_MACHINE_SALE);
         return service.proceedOrder(order);
     }
 }

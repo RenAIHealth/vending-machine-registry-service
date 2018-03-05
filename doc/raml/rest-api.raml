@@ -1,7 +1,7 @@
 #%RAML 1.0
 title: Auto Seller Data API
 version: v1-0-1
-baseUri: http://www.renaijiance.com:9098/
+baseUri: http://m.renaijiance.com:9098/
 protocols:
   - HTTP
 description:
@@ -9,6 +9,52 @@ description:
 mediaType:
   - application/json
 types:
+  Order:
+    type: object
+    properties:
+      couponCode: string
+      product: Product
+      externalTradeNumber: string
+      macineSN: string
+      paidAmount: number
+      paymentType: number
+  Receipt:
+    type: object
+    properties:
+      date: datetime
+      operator: string
+      totalAmount: number
+      paidAmount: number
+      orderNumber: string
+      externalTradeNumber: string
+      transactionType: number
+      paymentType: number
+      details: ReceiptDetail[]
+  ReceiptDetail:
+    type: object
+    properties:
+      itemName: string
+      amount: number
+  Product:
+    type: object
+    properties:
+      name: string
+      price: number
+  Activity:
+    type: object
+    properties:
+      name: string
+      auid: string
+      expireDate: datetime
+  Coupon:
+    type: object
+    properties:
+      id: number
+      code: string
+      status: number
+      discountAmount: number
+      product: Product
+      activity: Activity
   SellerMachine:
     type: object
     properties:
@@ -48,6 +94,50 @@ types:
       numberOfElements: integer
       size: integer
       number: integer
+/api/coupons/o2o:
+  description:
+    Activity coupon apis
+  post:
+    description:
+      Register a new activity coupon
+    displayName: registerCoupon
+    body:
+      application/json:
+        type: Coupon
+    responses:
+      200:
+        body:
+          application/json:
+            type: Coupon
+      400:
+        description:
+          Returns 400 as bad request when register coupon with duplicated code
+        body:
+          application/json:
+            type: Message
+  /available/{code}:
+    get:
+      description:
+        Get coupon details with giving coupon code
+      displayName: getAvailableCoupon
+      responses:
+        200:
+          body:
+            application/json:
+              type: Coupon
+        404:
+          description:
+            Returns 404 if can't find coupon with coupon code
+          body:
+            application/json:
+              type: Message
+        400:
+          description:
+            Returns 400 if coupon already been used or expired
+          body:
+            application/json:
+              type: Message
+
 /api/machines:
   description:
     Machine Data API root route
@@ -84,6 +174,28 @@ types:
               type: Message
         403:
         404:
+    /orders:
+      post:
+        description: Proceed transaction with specified order
+        displayName: proceedOrder
+        queryParameters:
+          token: string
+        body:
+          application/json:
+            type: Order
+        responses:
+          200:
+            body:
+              application/json:
+                type: Receipt
+          400:
+            description:
+              1. Machine SN doesn't match machine SN in order
+              2. Token doesn't match with machine SN
+              3. Coupon is invalid
+          404:
+            description:
+              Can't find machine registry with giving machine SN
     /packages:
       /stock:
         get:
