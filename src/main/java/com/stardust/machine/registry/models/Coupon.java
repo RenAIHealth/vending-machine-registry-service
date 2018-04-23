@@ -8,7 +8,9 @@ import javax.persistence.*;
         @AttributeOverride(name = "product.name", column = @Column(name = "product_name")),
         @AttributeOverride(name = "product.price", column = @Column(name = "product_price")),
         @AttributeOverride(name = "activity.name", column = @Column(name = "activity_name")),
-        @AttributeOverride(name = "activity.expireDate", column = @Column(name = "expire_date"))
+        @AttributeOverride(name = "activity.expireDate", column = @Column(name = "expire_date")),
+        @AttributeOverride(name = "activity.maxUsed", column = @Column(name = "max_used")),
+        @AttributeOverride(name = "activity.used", column = @Column(name = "used"))
 })
 public class Coupon extends DataModel {
     public enum CouponStatus {

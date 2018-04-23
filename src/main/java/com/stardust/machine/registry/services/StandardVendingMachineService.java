@@ -143,7 +143,10 @@ public class StandardVendingMachineService implements VendingMachineService {
         Receipt receipt = this.receiptBuilder.createFromOrder(order);
         if (order.getCouponCode() != null) {
             Coupon coupon = couponRepository.getCouponByCode(order.getCouponCode());
-            coupon.setStatus(Coupon.CouponStatus.OUT_OF_USAGE);
+            coupon.getActivity().setUsed(coupon.getActivity().getUsed() + 1);
+            if (coupon.getActivity().getUsed() >= coupon.getActivity().getMaxUsed()) {
+                coupon.setStatus(Coupon.CouponStatus.OUT_OF_USAGE);
+            }
             couponRepository.save(coupon);
         }
         receiptRepository.save(receipt);

@@ -13,6 +13,10 @@ public class Activity implements Serializable {
 
     private String auid;
 
+    private int maxUsed = 1;
+
+    private int used = 0;
+
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date expireDate;
 
@@ -38,6 +42,22 @@ public class Activity implements Serializable {
 
     public void setAuid(String auid) {
         this.auid = auid;
+    }
+
+    public int getMaxUsed() {
+        return maxUsed;
+    }
+
+    public void setMaxUsed(int maxUsed) {
+        this.maxUsed = maxUsed;
+    }
+
+    public int getUsed() {
+        return used;
+    }
+
+    public void setUsed(int used) {
+        this.used = used;
     }
 
     @Override
